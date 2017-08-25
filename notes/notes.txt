@@ -1,0 +1,488 @@
+*These notes are not comprehensive*
+
+Playlist by JavaBrains: 
+https://www.youtube.com/watch?v=msXL2oDexqw&list=PLqq-6Pq4lTTbx8p2oCgcAQGQyqN8XeA1x&index=1
+
+--------3/4/5. Spring Boot? / Problems? / Provides? --------
+
+Spring: think of it as an umbrella name for all the features it has (boot, etc.), the same way you think of AWS and its features (ec2, s3, etc.). But it is more than that, its an app framework. --use to be...dependency injection.
+
+Spring 'Boot': lets you bootstrap a spring app from scratch; to make stand-alone spring apps that you can just run.
+
+Problems:
+Got super BIG cause, designed for common concerns and customization.
+varying mixes of feature, combination, 
+configuration, setups, build and deploys.
+
+-opinionated, convention over configuration, stand alone, production ready (?)
+
+--------6. Setup:--------
+Java8 SDK
+IDE - Spring STS "Spring Tool Suite": a flavor of Eclipse with Spring features.
+JNI Failure? - have varying architectures between sts and jdk. ex:86vs64
+
+--------7. maven--------
+manage dependencies = import jars and add it to the class-path
+lets you declare dependencies in a single file like NPM's package.json file.
+	-no need to download jars
+	-it goes to a repo with all dependencies will ever need.
+pom.xml - the single file with dependencies
+archType - simple template to start with simple proj, then go on from there.
+
+
+--------8. Creating Spring Boot Project--------
+multiple approaches making a spring app.
+1st approach - Create a maven project then add spring dependencies
+1.right click on left nav > Create a maven project
+2.check mark the box - create simple project 
+	(skip archetype selection) [will be bare bone]
+3.Fill > click finish
+	groupId - kinda like package name, unique ids namespace
+	artifactId - kinda like project name
+	gid = io.javabrains.springbootquickstart
+	aid = course-api
+	name = Java Brains Course API
+	desc = ___
+3info.Maven will download simple template.
+	notice: already has java's jre 'JRE System Library' w/jars
+	pom.xml - where can declare dependencies
+		gui and text provided
+	so far.. 
+		only did maven, nothing with spring boot...
+4.Add this block of code.
+declares our project is child of parent project.
+why add it? 
+	convention over config
+	spring-boot-starter-parent = spring team created this part and placed all default maven config. 
+''''''''''''''''
+<parent>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-parent</artifactId>
+	<version>1.4.2.RELEASE</version>
+</parent>
+''''''''''''''''/
+4b. Declare Dependencies
+normally, 
+	in maven, would list all dependencies, jars to import to make this a spring app.
+However, spring boot helps!
+	We know will be doing WEB project... need certain jars regardless.
+	Spring team created META dependencies 'parent dependency' which pulls all jar dependencies.
+	one dependencies to pull all other dependencies
+''''''''''''''''
+<dependencies>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+</dependencies>
+''''''''''''''''/
+4.info 
+Notice error
+	maven prob = project config not up-to-date
+	there is a tip at very bottom of app 
+		'select Maven > update project' in project context menu
+	JRE gets updated too!!
+		due to <parent> spring configuration
+4c. if not want java version given.
+insert this. and maven > update project
+''''''''''''''''
+<properties>
+	<java.version>1.8<java.version>
+</properties>
+''''''''''''''''/
+
+
+--------9. Starting Spring Boot App--------
+1.right click src/main/java > new Class
+2.Fill
+src folder: course-api/src/main/java
+pkg folder: io.javabrains.springbootstarter
+name: CourseApiApp
+modifier: public
+method stubs - check box: static main, inherited abstract methods
+3.finish
+----
+Will bootstrap in main Class
+Remember: spring boot creates spring app that's stand-alone... not need servlet container, not need deploy on server.
+*need a class with main method to take care of it.
+	-creates/starts servlet container, and hosts app in servlet container.
+1.Tell spring this is spring app
+above class, insert.
+''''''''''''''''
+@SpringBootApplication
+''''''''''''''''/
+2. then, 
+'import org.springframework.boot.autoconfigure.SpringBootApplication;'
+3. insert in main
+''''''''''''''''
+//SpringBootApplication.run(source, args); //source=class with static main, args=args that would have been passed to main method
+SpringBootApplication.run(CourseApiApp.class, args);
+''''''''''''''''/
+info
+	calling a static method, passing name of a class, and pass of args
+4. Test
+-click Run icon > Java Application
+-notice: last line says 'Started CourseApiApp #.### seconds (JVM for #.###)'
+-open 'localhost'
+
+
+--------10. Spring Boot Startup Steps--------
+SpringBootApplication.run(App.class, args);
+-static run method 
+*What it does?
+	Sets up default configs
+	Starts Spring App Context
+	performs class path scan
+		-way plug code to springBoot is custom classes with annotations
+			@service, controller, etc.
+		spring checks and treats classes accordingly
+	starts Tomcat server
+		*CAME with springBoot
+		localhost
+	
+
+--------11. Add REST Controller--------
+0. java class w/ annotation @controller
+	has info bout 2 things Spring needs to know, 
+	*what URL access triggers it?
+	*what method to run when accessed?
+How do you do that--given request, run code on servlet container?
+	add a controller
+1a.
+Info: localhost:8080/hello
+Build for the above URL request.
+Can be...
+	REST API response. aka JSON
+	HTML page.
+	map to JSP/FTL response
+*Making a Simple String
+1.
+right click src/main/java > new Class
+Name: HelloController
+package: io.javabrains.springbootstarter.hello from io.javabrains.springbootstarter
+	Why? = placed pkg there, cause 
+2. Finish
+3. Annotate the Class
+''''''''''''''''
+import org.springframework.web.bind.annotation.RESTController;
+@RESTController
+''''''''''''''''/
+means...
+can have methods inside.
+these methods are capable of being requested
+4. Tell Spring method needs to be called when /hello requested.
+w/ @RequestMapping("/request")
+''''''''''''''''
+@RequestMapping("/hello")
+public String sayHi(){
+	return "Hi";
+}
+''''''''''''''''/
+@RequestMapping("/")
+*By Default, Maps to ALL HTTP methods
+
+
+--------12. RETURN OBJECTS FROM Controller--------
+Objective: /topics will return list of topic objects. JSON response.
+1. 
+right click src/main/java, new > Class
+2.Fill
+name: TopicController
+package: io.javabrains.springbootstarter.topic
+2.Finish
+3. Make class @RESTController
+4. make a method w/ @RequestMapping("/topics")
+	return "All Topics"; //for now
+5. import needed libs
+Now...We want to change string return to JSON
+Ideally connect with database and get records.
+For now... Hard Code Topic Objects and return it.
+6. right click io.javabrains.springbootstarter in src/main/java, new > Class
+7. Fill
+name: Topic
+8. add member vars
+private String id; 
+private String name; 
+private String description; 
+9. add getters/setters
+right click on code, 
+Source > Generate Getters/Setters - for all of them
+10. add constructor(s)
+right click on code, 
+Source > Generate Constructor using Fields - params with all
+-params with all
+-noArgs
+11. want to return list of topics from TopicController
+in TopicController's getAllTopics() change String non-access modifier
+''''''''''''''''
+List<Topic>
+''''''''''''''''/
+hmmm.... What?! Ohh, SpringMVC will do something...
+converted to JSON automatically.
+12. return a List
+SpringMVC will convert List as JSON
+''''''''''''''''
+return Arrays.asList(
+	new Topic("spring", "Spring Framework", "Spring Framework Description"),
+	new Topic("java", "Core Java", "Core Java Description"),
+	new Topic("javascript", "Core JavaScript", "JavaScript Description"),
+);
+''''''''''''''''/
+JSON format ******ADD THIS****
+''''''''''''''''
+[{},{},{}]
+''''''''''''''''/
+TODO: Will change getAllTopics to call database and return values.
+
+
+--------13. What's Happening Here?: Bill of Materials--------
+Spring is doing ALOT!
+*This is a Summary video.
+pom.xml
+-parent
+	just pulls configuration
+	informs maven what jars to pull, when you do specify dependencies
+	says what versions of those jars to pull
+-dependencies
+-properties
+This preset list of jars is "Bill of Materials".
+
+
+--------14. What's Happening Here?: Embedded Servlet Container--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+--------15. How Spring MVC Works--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------16. The REST API We'll Build--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------17. Create a business service--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------18. Getting a Single Resource--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------19. Create a new resource using POST --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------20. Implementing Update and Delete--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------21. Unit Overview--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------22. Using Spring Initializer --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------23. Using Spring Boot CLI --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------24. Using the STS IDE --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------25. Using application properties--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------26. What is JPA? --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------27. Adding Spring Data JPA --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------28. Creating a Spring Data JPA Repository --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------29. Making CRUD operations with Repository --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------30. Adding Course APIs --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------31. Adding Entity Relationship and Extending Repository --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------32. Packaging and Running a Spring Boot App --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------33. Spring Boot Actuator --------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------34. Wrap up --------
+Spring Boot Quick Start
+Unit 1: Starting a Spring Boot App
+	what is spring boot
+	simple spring boot app
+Unit 2: Spring MVC
+	looked at view tier? MVC
+	REST API endpoints and map to business logic
+Unit 3: Booting Spring Boot
+	Alternate ways to create Spring Boot Apps
+	Saw 1 way in Unit 1, more in Unit 3.
+Unit 4: Spring Data JPA
+	Use what we learned in Unit 3, to make a new project that includes 'Spring Data JPA'. 
+	How we connect to Databse with 'Spring Data JPA'.
+	How to map objects and classes to databases using 'Object Relational Mapping'
+		-including JP Annotations and making it work with 'Spring Data JPA' framework.
+Unit 5: App Execution and Actuator
+how to package/execute spring boot app 
+Spring Actuator tool - lets create manageMetrics = observe state of app which is deployed in production
+	a sub project of spring boot
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------jk--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+--------jk--------
+
+''''''''''''''''
+
+''''''''''''''''/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
