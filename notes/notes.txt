@@ -245,27 +245,51 @@ pom.xml
 	says what versions of those jars to pull
 -dependencies
 -properties
-This preset list of jars is "Bill of Materials".
+"Bill of Materials".:: This preset list of jars is 
 
 
 --------14. What's Happening Here?: Embedded Servlet Container--------
-
-''''''''''''''''
-
-''''''''''''''''/
-
-
-
---------15. How Spring MVC Works--------
-
-''''''''''''''''
-
-''''''''''''''''/
+Embedded Tomcat Server
+*built into Spring
+Why?
+convenience
+configuration - servlet container config is now app config
+useful for micro-services architecture - dont want to set up for each service, better as one monolithic code base.
+*Can choose other server, but will need to configure and set dependency in pom.xml
 
 
+--------15. How Spring MVC Works -- UNIT 2--------
+Objectives:
+adding controllers
+handling requests 
+mapping controllers.
+now: will hard code
+later: connect to database
+
+Info provided: (basically how REST works in terms of spring)
+Spring MVC
+*handles View tier in MVC; mapping, controllers,
+Remember we created App, spring web starter / spring-boot-starter-web - actually had Spring MVC
+Explanation:
+when request comes in, spring mvc shows error page meaning doesn't know what to do. 
+So, we need to make controllers to handle requests.
+*Controllers are Java classes that map URI and HTTP method to some functionality
+ex: "/uri", GET|POST|etc., method()
+*If there is a request match, executes method, and whatever is/based on return type, spring forms it into a proper response before sending the response!
+ex:List (new array {ob1, info, more info}, new array {obj2, info, more info}) ==> JSON [{ob1, info, more info},{ob2, info, more info}]
+*converts Java values to JSON
 
 
 --------16. The REST API We'll Build--------
+When building a REST API... there are things to consider
+Rest API deal with nouns aka entities/resources
+resources are things in domain
+look for ways consumers can access resource using varying HTTP methods
+
+ex: 
+domain: Course API 
+Resources: Topic, Course, Lesson
+Data Logic design: topic 1--* course 1--* lesson
 
 ''''''''''''''''
 
